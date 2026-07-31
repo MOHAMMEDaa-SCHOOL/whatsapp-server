@@ -10,7 +10,7 @@ RUN npm install
 
 COPY . .
 
-RUN npm run start --if-present || npx tsc
+RUN npx tsc
 
 EXPOSE 3005
 
