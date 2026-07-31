@@ -78,6 +78,27 @@ router.get('/status', (req, res) => {
     });
 });
 
+router.post('/check', (req, res) => {
+    const { messageIds } = req.body;
+    if (!Array.isArray(messageIds)) return res.status(400).json({ error: 'Invalid body' });
+    
+    const results: Record<string, any> = {};
+    for (const id of messageIds) {
+        const inQueue = messageQueue.find(m => m.id === id);
+        if (inQueue) {
+            results[id] = { status: inQueue.status };
+            continue;
+        }
+        const inHistory = messageHistory.find(m => m.id === id);
+        if (inHistory) {
+            results[id] = { status: inHistory.status, sentAt: inHistory.sentAt, error: inHistory.error };
+            continue;
+        }
+        results[id] = { status: 'not_found' };
+    }
+    res.json(results);
+});
+
 router.get('/logs', (req, res) => {
     res.send(`
         <html>
