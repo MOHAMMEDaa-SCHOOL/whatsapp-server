@@ -8,9 +8,11 @@ interface QueueMessage {
     text: string;
     status: 'pending' | 'processing' | 'completed' | 'failed';
     error?: string;
+    sentAt?: string;
 }
 
 export const messageQueue: QueueMessage[] = [];
+export const messageHistory: QueueMessage[] = [];
 let isProcessingQueue = false;
 
 const MIN_DELAY = parseInt(process.env.MIN_DELAY || '30', 10) * 1000;
@@ -66,10 +68,15 @@ async function processQueue() {
     console.log(`[Queue] Waiting ${delay / 1000} seconds before next message...`);
     
     setTimeout(() => {
-        // Remove completed/failed messages to prevent memory leak (optional, or keep a history)
+        // Remove completed/failed messages to prevent memory leak and move to history
         const indexToRemove = messageQueue.findIndex(m => m.id === message.id);
         if (indexToRemove !== -1) {
-            messageQueue.splice(indexToRemove, 1);
+            const finishedMsg = messageQueue.splice(indexToRemove, 1)[0];
+            finishedMsg.sentAt = new Date().toLocaleString('en-US', { timeZone: 'Asia/Riyadh' });
+            messageHistory.unshift(finishedMsg);
+            if (messageHistory.length > 100) {
+                messageHistory.pop();
+            }
         }
         
         processQueue();
