@@ -13,8 +13,8 @@ interface QueueMessage {
 export const messageQueue: QueueMessage[] = [];
 let isProcessingQueue = false;
 
-const MIN_DELAY = parseInt(process.env.MIN_DELAY || '5', 10) * 1000;
-const MAX_DELAY = parseInt(process.env.MAX_DELAY || '12', 10) * 1000;
+const MIN_DELAY = parseInt(process.env.MIN_DELAY || '30', 10) * 1000;
+const MAX_DELAY = parseInt(process.env.MAX_DELAY || '180', 10) * 1000;
 
 function getRandomDelay() {
     return Math.floor(Math.random() * (MAX_DELAY - MIN_DELAY + 1)) + MIN_DELAY;
